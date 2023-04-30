@@ -1,0 +1,5 @@
+= []
+for
+in
+re.search
+.append
