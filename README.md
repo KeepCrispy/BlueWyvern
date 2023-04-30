@@ -1,5 +1,7 @@
 # BlueWyvern
-A DevSecOps Security Solution for Detecting and Preventing Obfuscated Code
+A DevSecOps Security Solution for Detecting and Preventing Obfuscated/Malicious Code
+
+It is designed using Regex to detect obfuscated code that may be used to hide malicious code, which YARA is not designed to detect.
 
 Simple POC tool for catching bad code and simple obfuscation
 
