@@ -11,6 +11,6 @@ This POC tool can be customized for catching obfuscated powershell codes on your
 
 It's important to keep it light weight so you can deploy this easily with minimal setup to run in your pipeline or deployment environment.
 
-I highly recommend customizing further before use, such as adding logging and notifications. This is best used in tandem with a file integrity monitor as well to an extra layer of visibility.
+I highly recommend customizing further before use, such as adding logging and notifications. This is best used in tandem with a file integrity monitor as well to add an extra layer of visibility.
 
 Cheers
