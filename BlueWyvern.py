@@ -46,29 +46,29 @@ import re
 #Regex Scanning Methods
     
 #perform finite machine scan with user input list, against the target file
-def ScanWithfiniteMachine(finiteRuleStrings, targetFile):
+def ScanWithfiniteMachine(finite_regex_strings, targetFile):
     foundStrings = []
     i = 0
-    slen = len(finiteRuleStrings)
+    slen = len(finite_regex_strings)
     for line in targetFile:
     
     	#finite machine regex based string search
-        while i < slen and re.search(finiteRuleStrings[i], line): 
-           foundStrings.append(finiteRuleStrings[i])
+        while i < slen and re.search(finite_regex_strings[i], line): 
+           foundStrings.append(finite_regex_strings[i])
            i+=1
         if i >= slen: break
 
-    if len(foundStrings) == len(finiteRuleStrings):
+    if len(foundStrings) == len(finite_regex_strings):
         return True
     else:
         return False
 
     
 #global regex search, takes the user's input_File and regex_file and scans with regex
-def ScanGlobalRegex(targetFile, globalRegexRuleFile):
+def ScanGlobalRegex(targetFile, global_regex_rule_file):
 
     #append builtin keywords to user regex rules
-    global_regexList = appendGlobalRegex(globalRegexRuleFile)
+    global_regexList = appendGlobalRegex(global_regex_rule_file)
     
     #perform regex scanning
     regexMatches = []
@@ -163,12 +163,12 @@ def appendGlobalRegex(globalRegexFile):
     
 #perform regex tests, for global rules, and finite machine rules if the rule file is present
 def RunTests(args):
-    targetStrings = readTargetFile(args.finite_file)
+    finite_regex_strings = readTargetFile(args.finite_file)
     file = open(args.input_file, "r")
     
     result = False
     if args.finite_file != None:
-        result = ScanWithfiniteMachine(targetStrings, file)
+        result = ScanWithfiniteMachine(finite_regex_strings, file)
         
     if args.regex_file != None:
         result = result or ScanGlobalRegex(file, args.regex_file)
