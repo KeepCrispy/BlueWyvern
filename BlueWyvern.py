@@ -62,6 +62,7 @@ obfuscated_regex = [r'\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\]',
 
 #adding regex to detect malicious URLs
 obfuscated_regex.append(r'((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)')
+obfuscated_regex.append(r'((http?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)')
 
 #adding regex to detect malicious IP addresses
 obfuscated_regex.append(r'(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])')
