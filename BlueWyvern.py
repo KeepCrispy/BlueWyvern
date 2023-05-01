@@ -261,11 +261,6 @@ def validateInputArgs(args):
         print("False\n")
         return False
     
-    #check that both regex files do not exist
-    if args.finite_file and args.regex_file:
-        print('Error: both finite and regex files cannot exist')
-        print("False\n")
-        return False
         
     #check that input file is a valid text file
     if os.path.splitext(args.input_file)[1] not in ['.txt']:
@@ -284,10 +279,7 @@ def validateInputArgs(args):
         print('Error: the regex file must be a valid text file')
         print("False\n")
         return False
-    
-    #if all tests pass return True
-    return True
-        
+
     #if everything passes, return true
     return True
 
