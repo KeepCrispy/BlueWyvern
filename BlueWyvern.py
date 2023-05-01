@@ -79,9 +79,6 @@ suspicious_regex.append(r'[a-zA-Z0-9][a-zA-Z0-9._-]*\.exe')
 #adding regex to detect malicious registry entries
 suspicious_regex.append(r'[\w\d]{1,}=.*\\[\w\d]{1,}\\[\w\d]{1,}')
 
-#detecting strings that contain multiple instances of the same character
-suspicious_regex.append("[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*")
-
 #making sure special characters are preserved for regex
 def escapeString(string):
     escapeChars = ['.', '^', '$', '*', '+', '?', '{', '}', '[', ']', '\\', '|', '(', ')', '<', '>', '&', '%', '@', '!', ',', '-', '_', '~', '`', '"']
