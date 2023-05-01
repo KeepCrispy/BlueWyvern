@@ -47,7 +47,7 @@ keywords = ['Invoke-Expression', 'Invoke-Command', 'Invoke-Item', 'Start-Process
             'Get-Process', 'Start-Job', 'Invoke-Command', 'Invoke-WmiMethod',
             'Invoke-CimMethod', 'Get-Command', 'Invoke-History', 'Invoke-RestMethod',
             'Invoke-WebRequest', 'Get-WinEvent', 'Write-EventLog', 'Invoke-Item',
-            'Invoke-Expression', 'Invoke-History', 'Get-NetFirewallRule', 'Get-NetAdapter']
+            'Invoke-History', 'Get-NetFirewallRule', 'Get-NetAdapter']
 
 
 #expanding regex to search for more obfuscated code
@@ -81,12 +81,6 @@ suspicious_regex.append(r'[\w\d]{1,}=.*\\[\w\d]{1,}\\[\w\d]{1,}')
 
 #detecting strings that contain multiple instances of the same character
 suspicious_regex.append("[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*")
-
-#detecting strings that contain hexadecimal characters
-suspicious_regex.append("[A-Za-z0-9]*[0-9A-F]{2,}[A-Za-z0-9]*")
-
-#detecting strings that contain suspicious characters
-suspicious_regex.append("[^A-Za-z0-9]{2,}")
 
 #making sure special characters are preserved for regex
 def escapeString(string):
@@ -147,6 +141,7 @@ def ScanWithfiniteMachine(stringList, file):
 def validateInputArgs(args):
     if args.input_file is None or (args.finite_file is None and args.regex_file is None):
         print("Error: both Input_file and at least 1 Regex file (finite_file or regex_file) must be provided")
+        print("False\n")
         return False
     return True
     
@@ -171,11 +166,8 @@ def main():
     
     args = parser.parse_args()
     if validateInputArgs(args) == False:
-        print("Error: inputs are not valid for testing\n")
-        print("False\n")
         return
     	
-    
     print (RunTests(args))
 
 
