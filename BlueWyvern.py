@@ -37,47 +37,10 @@
 #use regex_file for global regex scans
 #
 
+#import libraries
 import argparse
 import re
 
-#expanding the set of keywords to search for
-keywords = ['Invoke-Expression', 'Invoke-Command', 'Invoke-Item', 'Start-Process',
-            'Start-Service', 'Set-Service', 'Stop-Service', 'Enable-PSRemoting',
-            'Enable-WSManCredSSP', 'Get-WMIObject', 'Create-Object', 'New-Object',
-            'Get-Process', 'Start-Job', 'Invoke-Command', 'Invoke-WmiMethod',
-            'Invoke-CimMethod', 'Get-Command', 'Invoke-History', 'Invoke-RestMethod',
-            'Invoke-WebRequest', 'Get-WinEvent', 'Write-EventLog', 'Invoke-Item',
-            'Invoke-History', 'Get-NetFirewallRule', 'Get-NetAdapter']
-
-
-#expanding regex to search for more obfuscated code
-obfuscated_regex = [r'\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\]',
-                    r'\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\](.)',
-                    r'[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*',
-                    r'[A-Za-z0-9]*[0-9A-F]{2,}[A-Za-z0-9]*',
-                    r'[^A-Za-z0-9]{2,}',
-                    r'[A-Za-z0-9]{2,}\]\[\d{1,}',
-                    r'\[\d{1,}\]\[\d{1,}']
-
-
-#adding regex to detect malicious URLs
-suspicious_regex = [r'((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)']
-suspicious_regex.append(r'((http?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)')
-
-#adding regex to detect malicious IP addresses
-suspicious_regex.append(r'(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])')
-
-#adding regex to detect malicious domains
-suspicious_regex.append(r'(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]')
-
-#adding regex to detect malicious file attachments
-suspicious_regex.append(r'[a-zA-Z0-9][a-zA-Z0-9._-]*\.(?:zip|exe|msi|rar)')
-
-#adding regex to detect malicious executables
-suspicious_regex.append(r'[a-zA-Z0-9][a-zA-Z0-9._-]*\.exe')
-
-#adding regex to detect malicious registry entries
-suspicious_regex.append(r'[\w\d]{1,}=.*\\[\w\d]{1,}\\[\w\d]{1,}')
 
 #making sure special characters are preserved for regex
 def escapeString(string):
@@ -89,18 +52,17 @@ def escapeString(string):
         escapedString += char
     return escapedString
     
-#global regex search for keywords
-def ScanGlobalRegex(file, regexFile):
-    regexList = readFile(regexFile)
+#global regex search, takes the user's input_File and regex_file and scans with regex
+def ScanGlobalRegex(target_file, globalRegexRuleFile):
+
+    #append builtin keywords to user regex rules
+    global_regexList = appendGlobalRegex(globalRegexRuleFile)
     
-    #importing keywords and obfuscation definitions
-    regexList += keywords
-    regexList += obfuscated_regex
-    regexList += suspicious_regex
-    
+    #perform regex scanning
     matches = []
-    matches = re.findall('|'.join(regexList), file.read())
-            
+    matches = re.findall('|'.join(global_regexList), target_file.read())
+    
+    #confirm and print findings
     if len(matches) > 0:
         print("Global Regex Matches found:")
         for match in matches:
@@ -110,19 +72,73 @@ def ScanGlobalRegex(file, regexFile):
         print("No Global Regex matches found.")
     return False
 
+#setup function for appending global regex keywords
+def appendGlobalRegex(globalRegexFile):
+
+    #expanding the set of keywords to search for
+    keywords = ['Invoke-Expression', 'Invoke-Command', 'Invoke-Item', 'Start-Process',
+            'Start-Service', 'Set-Service', 'Stop-Service', 'Enable-PSRemoting',
+            'Enable-WSManCredSSP', 'Get-WMIObject', 'Create-Object', 'New-Object',
+            'Get-Process', 'Start-Job', 'Invoke-Command', 'Invoke-WmiMethod',
+            'Invoke-CimMethod', 'Get-Command', 'Invoke-History', 'Invoke-RestMethod',
+            'Invoke-WebRequest', 'Get-WinEvent', 'Write-EventLog', 'Invoke-Item',
+            'Invoke-History', 'Get-NetFirewallRule', 'Get-NetAdapter']
+
+
+    #expanding regex to search for more obfuscated code
+    obfuscated_regex = [r'\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\]',
+                    r'\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\](.)',
+                    r'[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*',
+                    r'[A-Za-z0-9]*[0-9A-F]{2,}[A-Za-z0-9]*',
+                    r'[^A-Za-z0-9]{2,}',
+                    r'[A-Za-z0-9]{2,}\]\[\d{1,}',
+                    r'\[\d{1,}\]\[\d{1,}']
+
+
+    #adding regex to detect malicious URLs
+    suspicious_regex = [r'((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)']
+    suspicious_regex.append(r'((http?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)')
+
+    #adding regex to detect malicious IP addresses
+    suspicious_regex.append(r'(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])')
+
+    #adding regex to detect malicious domains
+    suspicious_regex.append(r'(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]')
+
+    #adding regex to detect malicious file attachments
+    suspicious_regex.append(r'[a-zA-Z0-9][a-zA-Z0-9._-]*\.(?:zip|exe|msi|rar)')
+
+    #adding regex to detect malicious executables
+    suspicious_regex.append(r'[a-zA-Z0-9][a-zA-Z0-9._-]*\.exe')
+
+    #adding regex to detect malicious registry entries
+    suspicious_regex.append(r'[\w\d]{1,}=.*\\[\w\d]{1,}\\[\w\d]{1,}')
+    
+    #load user regex rules file for global scanning
+    global_regexList = readTargetFile(globalRegexRuleFile)
+    
+    #importing keywords and obfuscation definitions
+    global_regexList += keywords
+    global_regexList += obfuscated_regex
+    global_regexList += suspicious_regex
+    
+    #return final compiled regex list
+    return global_regexList
+
 #custom file read with character escaping
-def readFile(fileName):
+def readTargetFile(fileName):
     strings = []
-    with open(fileName, 'r') as file:
-        for line in file:
+    with open(fileName, 'r') as target_file:
+        for line in target_file:
             strings.append(escapeString(line.strip()))
     return strings
 
-def ScanWithfiniteMachine(stringList, file):
+#perform finite machine scan with user input list, against the target file
+def ScanWithfiniteMachine(stringList, target_file):
     foundStrings = []
     i = 0
     slen = len(stringList)
-    for line in file:
+    for line in target_file:
     
     	#finite machine regex based string search
         while i < slen and re.search(stringList[i], line): 
@@ -135,6 +151,7 @@ def ScanWithfiniteMachine(stringList, file):
     else:
         return False
 
+#used by the main() entry method to validate user inputs
 def validateInputArgs(args):
     if args.input_file is None or (args.finite_file is None and args.regex_file is None):
         print("Error: both Input_file and at least 1 Regex file (finite_file or regex_file) must be provided")
@@ -142,8 +159,9 @@ def validateInputArgs(args):
         return False
     return True
     
+#perform regex tests, for global rules, and finite machine rules if the rule file is present
 def RunTests(args):
-    stringList = readFile(args.finite_file)
+    stringList = readTargetFile(args.finite_file)
     file = open(args.input_file, "r")
     
     result = False
@@ -155,6 +173,7 @@ def RunTests(args):
    
     return (result)
 
+#setup program with user inputs
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_file", help="Input file containing the code to be scanned")
@@ -162,6 +181,8 @@ def main():
     parser.add_argument("--finite_file", help="The file containing  ordered regex string to use for the scan")
     
     args = parser.parse_args()
+    
+    #validate user arguements before going any further
     if validateInputArgs(args) == False:
         return
     	
