@@ -171,7 +171,11 @@ def main():
     parser.add_argument("--finite_file", help="The file containing  ordered regex string to use for the scan")
     
     args = parser.parse_args()
-    if validateInputArgs(args) == False: return
+    if validateInputArgs(args) == False:
+        print("Error: inputs are not valid for testing\n")
+        print("False\n")
+        return
+    	
     
     print (RunTests(args))
 
