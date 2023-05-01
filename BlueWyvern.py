@@ -41,50 +41,15 @@
 import argparse
 import re
 
-
-#Regex Scanning Methods
     
-#perform finite machine scan with user input list, against the target file
-def ScanWithfiniteMachine(finite_regex_strings, targetFile):
-    foundStrings = []
-    i = 0
-    slen = len(finite_regex_strings)
-    for line in targetFile:
-    
-    	#finite machine regex based string search
-        while i < slen and re.search(finite_regex_strings[i], line): 
-           foundStrings.append(finite_regex_strings[i])
-           i+=1
-        if i >= slen: break
+#Helper/Utilities functions below
 
+
+def checkFoundRules(foundStrings, finite_regex_strings):
     if len(foundStrings) == len(finite_regex_strings):
         return True
     else:
         return False
-
-    
-#global regex search, takes the user's input_File and regex_file and scans with regex
-def ScanGlobalRegex(targetFile, global_regex_rule_file):
-
-    #append builtin keywords to user regex rules
-    global_regexList = appendGlobalRegex(global_regex_rule_file)
-    
-    #perform regex scanning
-    regexMatches = []
-    regexMatches = re.findall('|'.join(global_regexList), targetFile.read())
-    
-    #confirm and print findings
-    if len(regexMatches) > 0:
-        print("Global Regex Matches found:")
-        for match in regexMatches:
-            print(match)
-        return True
-    else:
-        print("No Global Regex matches found.")
-    return False
-
-    
-#Helper/Utilities functions below
 
 
 #custom file read with character escaping
@@ -95,6 +60,7 @@ def readTargetFile(filePath):
             strings.append(escapeString(line.strip()))
     return strings
     
+    
 #making sure special characters are preserved for regex
 def escapeString(string):
     escapeCharsList = ['.', '^', '$', '*', '+', '?', '{', '}', '[', ']', '\\', '|', '(', ')', '<', '>', '&', '%', '@', '!', ',', '-', '_', '~', '`', '"']
@@ -104,6 +70,7 @@ def escapeString(string):
             escapedString += '\\'
         escapedString += char
     return escapedString
+
 
 #setup function for appending global regex keywords
 def appendGlobalRegex(globalRegexFile):
@@ -157,6 +124,50 @@ def appendGlobalRegex(globalRegexFile):
     
     #return final compiled regex list
     return globalRegexList
+
+
+
+#Regex Scanning Methods
+
+def SearchFiniteRegexStrings(finite_regex_strings, targetFile):
+    foundStrings = []
+    i = 0
+    slen = len(finite_regex_strings)
+    
+    for line in targetFile:
+    	#finite machine regex based string search
+        while i < slen and re.search(finite_regex_strings[i], line): 
+           foundStrings.append(finite_regex_strings[i])
+           i+=1
+        if i >= slen: break
+        
+    return foundStrings
+    
+#perform finite machine scan with user input list, against the target file
+def ScanWithfiniteMachine(finite_regex_strings, targetFile):
+    foundStrings = SearchFiniteRegexStrings(finite_regex_strings, targetFile)
+    return checkFoundRules(foundStrings, finite_regex_strings)
+
+    
+#global regex search, takes the user's input_File and regex_file and scans with regex
+def ScanGlobalRegex(targetFile, global_regex_rule_file):
+
+    #append builtin keywords to user regex rules
+    global_regexList = appendGlobalRegex(global_regex_rule_file)
+    
+    #perform regex scanning
+    regexMatches = []
+    regexMatches = re.findall('|'.join(global_regexList), targetFile.read())
+    
+    #confirm and print findings
+    if len(regexMatches) > 0:
+        print("Global Regex Matches found:")
+        for match in regexMatches:
+            print(match)
+        return True
+    else:
+        print("No Global Regex matches found.")
+    return False
     
 
     
