@@ -108,8 +108,7 @@ def ScanGlobalRegex(file, regexFile):
     
     matches = []
     for regex in regexList:
-        for line in file:
-            matches += re.findall(regex, line)
+    	matches += re.findall(regex, file.read())
             
     if len(matches) > 0:
         print("Global Regex Matches found:")
