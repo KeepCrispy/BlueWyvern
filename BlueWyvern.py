@@ -42,49 +42,6 @@ import argparse
 import re
 
 
-#Main entry, validating user inputs and setting up tests to scan the target file
-
-if __name__ == "__main__":
-    main()
-
-#setup program with user inputs
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input_file", help="Input file containing the code to be scanned")
-    parser.add_argument("--regex_file", help="The file containing the regex strings to use for the scan")
-    parser.add_argument("--finite_file", help="The file containing  ordered regex string to use for the scan")
-    
-    args = parser.parse_args()
-    
-    #validate user arguements before going any further
-    if validateInputArgs(args) == False:
-        return
-    	
-    print (RunTests(args))
-
-#used by the main() entry method to validate user inputs
-def validateInputArgs(args):
-    if args.input_file is None or (args.finite_file is None and args.regex_file is None):
-        print("Error: both Input_file and at least 1 Regex file (finite_file or regex_file) must be provided")
-        print("False\n")
-        return False
-    return True
-
-    
-#perform regex tests, for global rules, and finite machine rules if the rule file is present
-def RunTests(args):
-    targetStrings = readTargetFile(args.finite_file)
-    file = open(args.input_file, "r")
-    
-    result = False
-    if args.finite_file != None:
-        result = ScanWithfiniteMachine(targetStrings, file)
-        
-    if args.regex_file != None:
-        result = result or ScanGlobalRegex(file, args.regex_file)
-   
-    return (result)
-    
 
 #Regex Scanning Methods
     
@@ -201,5 +158,54 @@ def appendGlobalRegex(globalRegexFile):
     
     #return final compiled regex list
     return globalRegexList
+    
+
+    
+#perform regex tests, for global rules, and finite machine rules if the rule file is present
+def RunTests(args):
+    targetStrings = readTargetFile(args.finite_file)
+    file = open(args.input_file, "r")
+    
+    result = False
+    if args.finite_file != None:
+        result = ScanWithfiniteMachine(targetStrings, file)
+        
+    if args.regex_file != None:
+        result = result or ScanGlobalRegex(file, args.regex_file)
+   
+    return (result)
+    
+
+
+#used by the main() entry method to validate user inputs
+def validateInputArgs(args):
+    if args.input_file is None or (args.finite_file is None and args.regex_file is None):
+        print("Error: both Input_file and at least 1 Regex file (finite_file or regex_file) must be provided")
+        print("False\n")
+        return False
+    return True
+
+
+#setup program with user inputs
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input_file", help="Input file containing the code to be scanned")
+    parser.add_argument("--regex_file", help="The file containing the regex strings to use for the scan")
+    parser.add_argument("--finite_file", help="The file containing  ordered regex string to use for the scan")
+    
+    args = parser.parse_args()
+    
+    #validate user arguements before going any further
+    if validateInputArgs(args) == False:
+        return
+    	
+    print (RunTests(args))
+
+
+#Main entry, validating user inputs and setting up tests to scan the target file
+
+if __name__ == "__main__":
+    main()
+
 
 
