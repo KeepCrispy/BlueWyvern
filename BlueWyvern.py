@@ -42,7 +42,6 @@ import argparse
 import re
 
 
-
 #Regex Scanning Methods
     
 #perform finite machine scan with user input list, against the target file
