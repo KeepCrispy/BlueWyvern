@@ -99,7 +99,7 @@ def escapeString(string):
     return escapedString
     
 #global regex search for keywords
-def searchRegex(file, regexFile):
+def ScanGlobalRegex(file, regexFile):
     regexList = readFile(regexFile)
     
     #importing keywords and obfuscation definitions
@@ -128,7 +128,7 @@ def readFile(fileName):
             strings.append(escapeString(line.strip()))
     return strings
 
-def finiteMachine(stringList, file):
+def ScanWithfiniteMachine(stringList, file):
     foundStrings = []
     i = 0
     slen = len(stringList)
@@ -145,7 +145,7 @@ def finiteMachine(stringList, file):
     else:
         return False
 
-def validateArgs(args):
+def validateInputArgs(args):
     if args.input_file is None or (args.finite_file is None and args.regex_file is None):
         print("Error: both Input_file and at least 1 Regex file (finite_file or regex_file) must be provided")
         return False
@@ -157,10 +157,10 @@ def RunTests(args):
     
     result = False
     if args.finite_file != None:
-        result = finiteMachine(stringList, file)
+        result = ScanWithfiniteMachine(stringList, file)
         
     if args.regex_file != None:
-        result = result or searchRegex(file, args.regex_file)
+        result = result or ScanGlobalRegex(file, args.regex_file)
    
     return (result)
 
@@ -171,7 +171,7 @@ def main():
     parser.add_argument("--finite_file", help="The file containing  ordered regex string to use for the scan")
     
     args = parser.parse_args()
-    if validateArgs == False: return
+    if validateInputArgs(args) == False: return
     
     print (RunTests(args))
 
