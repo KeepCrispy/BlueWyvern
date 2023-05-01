@@ -107,8 +107,7 @@ def ScanGlobalRegex(file, regexFile):
     regexList += obfuscated_regex
     
     matches = []
-    for regex in regexList:
-    	matches += re.findall(regex, file.read())
+    matches = re.findall('|'.join(regexList), file.read())
             
     if len(matches) > 0:
         print("Global Regex Matches found:")
