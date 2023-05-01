@@ -3,7 +3,7 @@ A Security Solution for Detecting Obfuscated Code for Code Security Audits
 
 credit goes to Panagiotis Chartas for his [PowerShell-Obfuscation-Bible Research](https://github.com/t3l3machus/PowerShell-Obfuscation-Bible)
 
-This tool uses Regex to detect a variety of obfuscated code, including malicious code. It also includes regular expressions to detect malicious URLs, IP addresses, domains, file attachments, executables, and registry entries, which requires some in depth knowledge of Yara to create custom rules. Additionally, the finite machine regex-based string search can detect multiple requirements in a single line sweep.
+This tool uses Regex to detect a variety of obfuscated code, including suspects of malicious code. It also includes regular expressions to detect malicious URLs, IP addresses, domains, file attachments, executables, and registry entries, which requires some in depth knowledge of Yara to create custom rules for. Additionally, the finite machine regex-based string search can detect multiple requirements in a single line sweep.
 
 This is part of a write-up I'v done for a deep dive into modern AMSI evasion techniques and how you can protect yourself and your development pipeline/environments. [My Powershell AMSI write-up](https://keepcrispy.github.io/AMSIProj)
 
