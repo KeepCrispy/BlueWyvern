@@ -79,6 +79,15 @@ obfuscated_regex.append(r'[a-zA-Z0-9][a-zA-Z0-9._-]*\.exe')
 #adding regex to detect malicious registry entries
 obfuscated_regex.append(r'[\w\d]{1,}=.*\\[\w\d]{1,}\\[\w\d]{1,}')
 
+#detecting strings that contain multiple instances of the same character
+obfuscated_regex.append("[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*")
+
+#detecting strings that contain hexadecimal characters
+obfuscated_regex.append("[A-Za-z0-9]*[0-9A-F]{2,}[A-Za-z0-9]*")
+
+#detecting strings that contain suspicious characters
+obfuscated_regex.append("[^A-Za-z0-9]{2,}")
+
 #making sure special characters are preserved for regex
 def escapeString(string):
     escapeChars = ['.', '^', '$', '*', '+', '?', '{', '}', '[', ']', '\\', '|', '(', ')', '<', '>', '&', '%', '@', '!', ',', '-', '_', '~', '`', '"']
@@ -93,15 +102,6 @@ def escapeString(string):
 def searchRegex(file, regexFile):
     regexList = readFile(regexFile)
     
-    #detecting strings that contain multiple instances of the same character
-    regexList.append("[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*")
-
-    #detecting strings that contain hexadecimal characters
-    regexList.append("[A-Za-z0-9]*[0-9A-F]{2,}[A-Za-z0-9]*")
-
-    #detecting strings that contain suspicious characters
-    regexList.append("[^A-Za-z0-9]{2,}")
-    
     #importing keywords and obfuscation definitions
     regexList += keywords
     regexList += obfuscated_regex
@@ -110,7 +110,15 @@ def searchRegex(file, regexFile):
     for regex in regexList:
         for line in file:
             matches += re.findall(regex, line)
-    return matches
+            
+    if len(matches) > 0:
+        print("Global Regex Matches found:")
+        for match in matches:
+            print(match)
+        return True
+    else:
+        print("No Global Regex matches found.")
+    return False
 
 #custom file read with character escaping
 def readFile(fileName):
@@ -137,33 +145,36 @@ def finiteMachine(stringList, file):
     else:
         return False
 
+def validateArgs(args):
+    if args.input_file is None or (args.finite_file is None and args.regex_file is None):
+        print("Error: both Input_file and at least 1 Regex file (finite_file or regex_file) must be provided")
+        return False
+    return True
+    
+def RunTests(args):
+    stringList = readFile(args.finite_file)
+    file = open(args.input_file, "r")
+    
+    result = False
+    if args.finite_file != None:
+        result = finiteMachine(stringList, file)
+        
+    if args.regex_file != None:
+        result = result or searchRegex(file, args.regex_file)
+   
+    return (result)
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_file", help="Input file containing the code to be scanned")
     parser.add_argument("--regex_file", help="The file containing the regex strings to use for the scan")
     parser.add_argument("--finite_file", help="The file containing  ordered regex string to use for the scan")
+    
     args = parser.parse_args()
+    if validateArgs == False: return
     
-    if args.input_file is None or (args.finite_file is None and args.regex_file is None):
-        print("Error: both Input_file and at least 1 Regex file (finite_file or regex_file) must be provided")
-        return
-    
-    stringList = readFile(args.finite_file)
-    file = open(args.input_file, "r")
-    result = False
-    if args.finite_file != None:
-        result = finiteMachine(stringList, file)
-    if args.regex_file != None:
-        matches = searchRegex(file, args.regex_file)
-        if len(matches) > 0:
-            print("Global Regex Matches found:")
-            for match in matches:
-                print(match)
-        else:
-            print("No Global Regex matches found.")
-            
-    print(result or len(matches) > 0)
+    print (RunTests(args))
+
 
 if __name__ == "__main__":
     main()
