@@ -40,6 +40,7 @@
 #import libraries
 import argparse
 import re
+import os
 
     
 #Helper/Utilities functions below
@@ -88,7 +89,7 @@ def escapeString(string):
 
 
 #setup function for appending global regex keywords
-def appendGlobalRegex(globalRegexFile):
+def builtinGlobalRegexScan():
 
     #expanding the set of keywords to search for
     keywords = ['Invoke-Expression', 'Invoke-Command', 'Invoke-Item', 'Start-Process',
@@ -130,15 +131,30 @@ def appendGlobalRegex(globalRegexFile):
     suspiciousRegexList.append(r'[\w\d]{1,}=.*\\[\w\d]{1,}\\[\w\d]{1,}')
     
     #load user regex rules file for global scanning
-    globalRegexList = readTargetFile(globalRegexRuleFile)
+    globalRegexList = []
+    
     
     #importing keywords and obfuscation definitions
     globalRegexList += keywords
     globalRegexList += obfuscatedRegexList
     globalRegexList += suspiciousRegexList
     
-    #return final compiled regex list
-    return globalRegexList
+    
+    #perform regex scanning
+    regexMatches = []
+    regexMatches = re.findall('|'.join(global_regexList), targetFile.read())
+    
+    #confirm and print findings
+    if len(regexMatches) > 0:
+        print("Global Regex Matches found:")
+        
+        #print the results so we can use it later for reference
+        for match in regexMatches:
+            print(match)
+        return True
+    else:
+        print("No Global Regex matches found.")
+    return False
 
 
 
@@ -173,8 +189,8 @@ def ScanWithfiniteMachine(finite_regex_strings, targetFile):
 #global regex search, takes the user's input_File and regex_file and scans with regex
 def ScanGlobalRegex(targetFile, global_regex_rule_file):
 
-    #append builtin keywords to user regex rules
-    global_regexList = appendGlobalRegex(global_regex_rule_file)
+    #load user regex rules file for global scanning
+    globalRegexList = readTargetFile(globalRegexRuleFile)
     
     #perform regex scanning
     regexMatches = []
@@ -211,6 +227,8 @@ def RunTests(args):
     #scan for global regex if we are given global rules
     if args.regex_file != None:
         result = result or ScanGlobalRegex(targetFile, args.regex_file)
+        
+    result = result or builtinGlobalRegexScan()
    
     return (result)
     
@@ -224,6 +242,53 @@ def validateInputArgs(args):
         print("Error: both Input_file and at least 1 Regex file (finite_file or regex_file) must be provided")
         print("False\n")
         return False
+        #check that input files exist
+        
+    if not os.path.exists(args.input_file):
+        print('Error: the input file does not exist')
+        print("False\n")
+        return False
+    
+    #check that finite file exists
+    if args.finite_file and not os.path.exists(args.finite_file):
+        print('Error: the finite file does not exist')
+        print("False\n")
+        return False
+    
+    #check that regex file exists
+    if args.regex_file and not os.path.exists(args.regex_file):
+        print('Error: the regex file does not exist')
+        print("False\n")
+        return False
+    
+    #check that both regex files do not exist
+    if args.finite_file and args.regex_file:
+        print('Error: both finite and regex files cannot exist')
+        print("False\n")
+        return False
+        
+    #check that input file is a valid text file
+    if os.path.splitext(args.input_file)[1] not in ['.txt']:
+        print('Error: the input file must be a valid text file')
+        print("False\n")
+        return False
+    
+    #check that finite file is a valid text file
+    if args.finite_file and os.path.splitext(args.finite_file)[1] not in ['.txt']:
+        print('Error: the finite file must be a valid text file')
+        print("False\n")
+        return False
+
+    #check that regex file is a valid text file
+    if args.regex_file and os.path.splitext(args.regex_file)[1] not in ['.txt']:
+        print('Error: the regex file must be a valid text file')
+        print("False\n")
+        return False
+    
+    #if all tests pass return True
+    return True
+        
+    #if everything passes, return true
     return True
 
 
@@ -232,17 +297,25 @@ def main():
 
     #collect user arguements
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input_file", help="Input file containing the code to be scanned")
+    parser.add_argument("--input_file", help="Input files containing the code to be scanned, seperated by commas")
     parser.add_argument("--regex_file", help="The file containing the regex strings to use for the scan")
     parser.add_argument("--finite_file", help="The file containing  ordered regex string to use for the scan")
     
     args = parser.parse_args()
     
+    #split the input files argument into a list
+    inputFileList = args.input_file.split(",")
+    
     #validate user arguements before going any further
     if validateInputArgs(args) == False:
         return
     	
-    print (RunTests(args))
+    #iterate through the list of files
+    for inputFile in inputFileList:
+        #set the input_file argument to the current file
+        args.input_file = inputFile
+        #run the tests
+        print(RunTests(args))
 
 
 #Main entry, validating user inputs and setting up tests to scan the target file
