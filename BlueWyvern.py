@@ -61,32 +61,32 @@ obfuscated_regex = [r'\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\]',
 
 
 #adding regex to detect malicious URLs
-obfuscated_regex.append(r'((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)')
-obfuscated_regex.append(r'((http?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)')
+suspicious_regex = [r'((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)']
+suspicious_regex.append(r'((http?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)')
 
 #adding regex to detect malicious IP addresses
-obfuscated_regex.append(r'(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])')
+suspicious_regex.append(r'(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])')
 
 #adding regex to detect malicious domains
-obfuscated_regex.append(r'(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]')
+suspicious_regex.append(r'(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]')
 
 #adding regex to detect malicious file attachments
-obfuscated_regex.append(r'[a-zA-Z0-9][a-zA-Z0-9._-]*\.(?:zip|exe|msi|rar)')
+suspicious_regex.append(r'[a-zA-Z0-9][a-zA-Z0-9._-]*\.(?:zip|exe|msi|rar)')
 
 #adding regex to detect malicious executables
-obfuscated_regex.append(r'[a-zA-Z0-9][a-zA-Z0-9._-]*\.exe')
+suspicious_regex.append(r'[a-zA-Z0-9][a-zA-Z0-9._-]*\.exe')
 
 #adding regex to detect malicious registry entries
-obfuscated_regex.append(r'[\w\d]{1,}=.*\\[\w\d]{1,}\\[\w\d]{1,}')
+suspicious_regex.append(r'[\w\d]{1,}=.*\\[\w\d]{1,}\\[\w\d]{1,}')
 
 #detecting strings that contain multiple instances of the same character
-obfuscated_regex.append("[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*")
+suspicious_regex.append("[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*")
 
 #detecting strings that contain hexadecimal characters
-obfuscated_regex.append("[A-Za-z0-9]*[0-9A-F]{2,}[A-Za-z0-9]*")
+suspicious_regex.append("[A-Za-z0-9]*[0-9A-F]{2,}[A-Za-z0-9]*")
 
 #detecting strings that contain suspicious characters
-obfuscated_regex.append("[^A-Za-z0-9]{2,}")
+suspicious_regex.append("[^A-Za-z0-9]{2,}")
 
 #making sure special characters are preserved for regex
 def escapeString(string):
@@ -105,6 +105,7 @@ def ScanGlobalRegex(file, regexFile):
     #importing keywords and obfuscation definitions
     regexList += keywords
     regexList += obfuscated_regex
+    regexList += suspicious_regex
     
     matches = []
     matches = re.findall('|'.join(regexList), file.read())
