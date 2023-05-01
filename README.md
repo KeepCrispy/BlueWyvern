@@ -1,13 +1,11 @@
 # BlueWyvern
-A DevSecOps Security Solution for Detecting Scanning for Code Security
+A Security Solution for Detecting Obfuscated Code for Code Security Audits
 
-It is designed using Regex to detect obfuscated code that may be used to hide malicious code, which YARA is not designed to detect.
+It uses Regex to detect a variety of obfuscated code, including malicious code. It also includes regular expressions to detect malicious URLs, IP addresses, domains, file attachments, executables, and registry entries, which is not possible with Yara's obfuscation rules. Additionally, the finite machine regex-based string search can detect multiple strings in a single line, making it more efficient than Yara's rules.
 
-Simple POC tool for catching bad code and simple obfuscation
+This is part of a series of write-up I'm planning on doing for a deep dive into modern AMSI evasion techniques and how you can protect yourself and your development pipeline/environments.
 
-This is part of a write-up I'm doing for a deep dive into modern AMSI evasion techniques and how you can protect yourself and your development pipeline/environments.
-
-This POC tool can be customized for catching obfuscated powershell codes on your system or in a library. You can probably retool it to do some further code audits. 
+This POC tool can be customized for performing security audits on a project or in a library. 
 
 It's important to keep it light weight so you can deploy this easily with minimal setup to run in your pipeline or deployment environment.
 
