@@ -46,6 +46,7 @@ import re
 
 
 def checkFoundRules(foundStrings, finite_regex_strings):
+    #check findings if equal length
     if len(foundStrings) == len(finite_regex_strings):
         return True
     else:
@@ -55,21 +56,35 @@ def checkFoundRules(foundStrings, finite_regex_strings):
 #custom file read with character escaping
 def readTargetFile(filePath):
     strings = []
+    #open the file
     with open(filePath, 'r') as targetFile:
         for line in targetFile:
+        
+            #rebuild the contents making sure special characters are included
             strings.append(escapeString(line.strip()))
+            
+    #return file contents with escaped characters for scanning
     return strings
     
     
 #making sure special characters are preserved for regex
 def escapeString(string):
     escapeCharsList = ['.', '^', '$', '*', '+', '?', '{', '}', '[', ']', '\\', '|', '(', ')', '<', '>', '&', '%', '@', '!', ',', '-', '_', '~', '`', '"']
-    escapedString = ""
+    
+    stringBuilder = ""
+    
+    #iterate through the string provided and add escape characeters
     for char in string:
+    
+    	#add escape character if it is in our list
         if char in escapeCharsList:
-            escapedString += '\\'
-        escapedString += char
-    return escapedString
+            stringBuilder += '\\'
+            
+        #add character to the string builder
+        stringBuilder += char
+        
+    #return compiled string
+    return stringBuilder
 
 
 #setup function for appending global regex keywords
@@ -134,11 +149,17 @@ def SearchFiniteRegexStrings(finite_regex_strings, targetFile):
     i = 0
     slen = len(finite_regex_strings)
     
+    #scanning each line
     for line in targetFile:
-    	#finite machine regex based string search
+    	#finite state machine regex based string search
+    	#this will continue to scan the same line, incase we have 1 one liner
         while i < slen and re.search(finite_regex_strings[i], line): 
            foundStrings.append(finite_regex_strings[i])
+           
+           #increment state to scan for the next regex rule
            i+=1
+           
+        #if we found everyhing, exit loop
         if i >= slen: break
         
     return foundStrings
@@ -162,6 +183,8 @@ def ScanGlobalRegex(targetFile, global_regex_rule_file):
     #confirm and print findings
     if len(regexMatches) > 0:
         print("Global Regex Matches found:")
+        
+        #print the results so we can use it later for reference
         for match in regexMatches:
             print(match)
         return True
@@ -173,15 +196,21 @@ def ScanGlobalRegex(targetFile, global_regex_rule_file):
     
 #perform regex tests, for global rules, and finite machine rules if the rule file is present
 def RunTests(args):
+
+    #open input file for testing
     finite_regex_strings = readTargetFile(args.finite_file)
-    file = open(args.input_file, "r")
+    targetFile = open(args.input_file, "r")
     
+    #begin testing
     result = False
+    
+    #scan with finite state machine if we are given finite rules 
     if args.finite_file != None:
-        result = ScanWithfiniteMachine(finite_regex_strings, file)
-        
+        result = ScanWithfiniteMachine(finite_regex_strings, targetFile)
+    
+    #scan for global regex if we are given global rules
     if args.regex_file != None:
-        result = result or ScanGlobalRegex(file, args.regex_file)
+        result = result or ScanGlobalRegex(targetFile, args.regex_file)
    
     return (result)
     
@@ -189,6 +218,8 @@ def RunTests(args):
 
 #used by the main() entry method to validate user inputs
 def validateInputArgs(args):
+
+    #check that the input file, and atleast one regex rule file is present
     if args.input_file is None or (args.finite_file is None and args.regex_file is None):
         print("Error: both Input_file and at least 1 Regex file (finite_file or regex_file) must be provided")
         print("False\n")
@@ -198,6 +229,8 @@ def validateInputArgs(args):
 
 #setup program with user inputs
 def main():
+
+    #collect user arguements
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_file", help="Input file containing the code to be scanned")
     parser.add_argument("--regex_file", help="The file containing the regex strings to use for the scan")
