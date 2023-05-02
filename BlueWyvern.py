@@ -176,8 +176,6 @@ def ProfileRulesFromFile(targetFile, rule_file_name):
                 # add character to list of special characters    
                 special_characters.append(char)
 
-    # create a list of escaped special characters 
-    #escaped_special_characters = [re.escape(char) for char in special_characters]
     regex_rule = [] # create regex rule for special characters
 
     #ceate the regex rule with the escaped characters
