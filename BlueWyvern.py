@@ -89,7 +89,7 @@ def escapeString(string):
 
 
 #setup function for appending global regex keywords
-def builtinGlobalRegexScan():
+def builtinGlobalRegexScan(targetFile):
 
     #expanding the set of keywords to search for
     keywords = ['Invoke-Expression', 'Invoke-Command', 'Invoke-Item', 'Start-Process',
@@ -142,20 +142,52 @@ def builtinGlobalRegexScan():
     
     #perform regex scanning
     regexMatches = []
-    regexMatches = re.findall('|'.join(global_regexList), targetFile.read())
+    regexMatches = re.findall('|'.join(globalRegexList), targetFile.read())
     
     #confirm and print findings
     if len(regexMatches) > 0:
-        print("Global Regex Matches found:")
+        print("Builtin Regex Matches found:")
         
         #print the results so we can use it later for reference
         for match in regexMatches:
             print(match)
         return True
     else:
-        print("No Global Regex matches found.")
+        print("No Builtin Regex matches found.")
     return False
 
+#Regex rule scanning
+
+def ProfileRulesFromFile(targetFile, rule_file_name):
+
+    #open the script you want to profile for 
+    target_File = open(targetFile, "r")
+    script_lines = target_File.readlines()
+ 
+    #create list to store special characters 
+    special_characters = []  
+    
+    #loop through each line of the script 
+    for line in script_lines:  
+        # split each line into a list of characters  
+        for char in line:   
+            # check if character is special character   
+            if char in ['$', '{', '}', '(', ')', '[', ']', '?', '|', '+', '*', '.', '^', '\\', '<', '>', '&', '=']:    
+                # add character to list of special characters    
+                special_characters.append(char)
+
+    # create a list of escaped special characters 
+    #escaped_special_characters = [re.escape(char) for char in special_characters]
+    regex_rule = [] # create regex rule for special characters
+
+    #ceate the regex rule with the escaped characters
+    for char in special_characters:
+        regex_rule.append(char) 
+        
+    # write regex rule to file with 
+    rule_file = open(rule_file_name,'w')
+    for rule in regex_rule:  rule_file.write(rule + '\n')
+    print ("done profiling")
 
 
 #Regex Scanning Methods
@@ -194,7 +226,7 @@ def ScanGlobalRegex(targetFile, global_regex_rule_file):
     
     #perform regex scanning
     regexMatches = []
-    regexMatches = re.findall('|'.join(global_regexList), targetFile.read())
+    regexMatches = re.findall('|'.join(globalRegexList), targetFile.read())
     
     #confirm and print findings
     if len(regexMatches) > 0:
@@ -214,7 +246,7 @@ def ScanGlobalRegex(targetFile, global_regex_rule_file):
 def RunTests(args):
 
     #open input file for testing
-    finite_regex_strings = readTargetFile(args.finite_file)
+    finite_regex_strings = readTargetFile(args.finite_file)LinearContentScan.py
     targetFile = open(args.input_file, "r")
     
     #begin testing
@@ -228,7 +260,7 @@ def RunTests(args):
     if args.regex_file != None:
         result = result or ScanGlobalRegex(targetFile, args.regex_file)
         
-    result = result or builtinGlobalRegexScan()
+    result = builtinGlobalRegexScan(targetFile) or result
    
     return (result)
     
@@ -237,8 +269,8 @@ def RunTests(args):
 #used by the main() entry method to validate user inputs
 def validateInputArgs(args):
 
-    #check that the input file, and atleast one regex rule file is present
-    if args.input_file is None or (args.finite_file is None and args.regex_file is None):
+    #check that the input file, and atleast one regex or rule file is present
+    if args.input_file is None or (args.output_rule is None and args.finite_file is None and args.regex_file is None):
         print("Error: both Input_file and at least 1 Regex file (finite_file or regex_file) must be provided")
         print("False\n")
         return False
@@ -260,8 +292,7 @@ def validateInputArgs(args):
         print('Error: the regex file does not exist')
         print("False\n")
         return False
-    
-        
+
     #check that input file is a valid text file
     if os.path.splitext(args.input_file)[1] not in ['.txt']:
         print('Error: the input file must be a valid text file')
@@ -279,6 +310,13 @@ def validateInputArgs(args):
         print('Error: the regex file must be a valid text file')
         print("False\n")
         return False
+    
+    #check that the input file and output rule is present
+    if args.output_rule and os.path.splitext(args.output_rule)[1] not in ['.txt']:
+        print('Error: the output rule file must be a valid text file')
+        print("False\n")
+        return False
+        
 
     #if everything passes, return true
     return True
@@ -292,6 +330,7 @@ def main():
     parser.add_argument("--input_file", help="Input files containing the code to be scanned, seperated by commas")
     parser.add_argument("--regex_file", help="The file containing the regex strings to use for the scan")
     parser.add_argument("--finite_file", help="The file containing  ordered regex string to use for the scan")
+    parser.add_argument("--output_rule", help="The output rule file from profiling the input file")
     
     args = parser.parse_args()
     
@@ -300,6 +339,11 @@ def main():
     
     #validate user arguements before going any further
     if validateInputArgs(args) == False:
+        return
+        
+    #check that the input file and output rule is present
+    if args.input_file and args.output_rule:
+        ProfileRulesFromFile(args.input_file, args.output_rule)
         return
     	
     #iterate through the list of files
