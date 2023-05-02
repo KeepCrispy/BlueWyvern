@@ -7,6 +7,18 @@ This tool uses Regex to detect a variety of obfuscated code, including suspects 
 
 This is part of a write-up I'v done for a deep dive into modern AMSI evasion techniques and how you can protect yourself and your development pipeline/environments. [My Powershell AMSI write-up](https://keepcrispy.github.io/AMSIProj)
 
+----------------------------------------------------------------------------
+
+Usage
+
+for scanning:
+python3 BlueWyvern.py --input_file testCode.txt --finite_file testrule.txt
+
+for profiling a script:
+python3 BlueWyvern.py --input_file testCode.txt --output_rule testrule.txt
+
+----------------------------------------------------------------------------
+
 This POC tool can be customized for performing security audits on a project or in a library. 
 
 It's important to keep it light weight so you can deploy this easily with minimal setup to run in your pipeline or deployment environment.
