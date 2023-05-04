@@ -347,7 +347,7 @@ def MonitorFileIntegrity(args):
                     #get timestamp
                     timestamp = datetime.datetime.now()
                 
-                    #log MD5 hash value in a file 
+                    #log MD5 hash value in a file to track changes
                     with open("bluewyvern_hashes.txt", "a") as f:
                         f.write(file + ": " + timestamp.strftime("%m-%d-%Y %H:%M") + ": " + "old_hash:"+fileHashMap[file] + "changed_hash: " + md5_hash_val + "\n")
 
@@ -371,7 +371,7 @@ def MonitorFileIntegrity(args):
                         print("found a suspicious file: " + file + ": " + timestamp.strftime("%m-%d-%Y %H:%M"))
                         loggedFlag = False
                             
-                        #open the script you want to profile for
+                        #open the log to check it's been logged for first sighting
                         if os.path.exists("bluewyvern_log.txt"):
                             readLog = open("bluewyvern_log.txt", "r")
                             logLines = readLog.readlines()
@@ -381,7 +381,8 @@ def MonitorFileIntegrity(args):
                                 if match:
                                     loggedFlag = True
                                     break
-                                    
+                        
+                        #only log this if this is a new finding
                         if loggedFlag == False:
                             with open("bluewyvern_log.txt", "a") as f:
                                 f.write(file + ": " + timestamp.strftime("%m-%d-%Y %H:%M") + ": "  + md5_hash_val + "\n")
