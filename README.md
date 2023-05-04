@@ -1,6 +1,6 @@
 # BlueWyvern
 
-This POC file integretiy monitoring tool is designed to detect a wide range of obfuscated code, including potentially malicious code, and to profile common patterns across multiple files. 
+This POC file integretiy monitoring tool is designed to mainly detect code execution patterns in obfuscated code, catching potentially malicious code, and to profile common patterns across multiple script/files. 
 
 credit goes to Panagiotis Chartas for his [PowerShell-Obfuscation-Bible Research](https://github.com/t3l3machus/PowerShell-Obfuscation-Bible)
 
