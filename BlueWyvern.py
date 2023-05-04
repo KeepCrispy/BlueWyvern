@@ -361,6 +361,8 @@ def RunTests(args):
 #used by the main() entry method to validate user inputs
 def validateInputArgs(args):
 
+    
+
     #check that the input file, and atleast one regex or rule file is present
     if args.input_file is None or (args.output_rule is None and args.finite_file is None and args.regex_file is None):
         print("Error: both Input_file and at least 1 Regex file (finite_file or regex_file) must be provided")
@@ -368,10 +370,13 @@ def validateInputArgs(args):
         return False
         #check that input files exist
         
-    if not os.path.exists(args.input_file):
-        print('Error: the input file does not exist')
-        print("False\n")
-        return False
+    #split the input files argument into a list
+    inputFileList = args.input_file.split(",")
+    for inputfile in inputFileList:
+        if not os.path.exists(inputfile):
+            print('Error: the input file [' + inputfile + '] does not exist')
+            print("False\n")
+            return False
     
     #check that finite file exists
     if args.finite_file and not os.path.exists(args.finite_file):
@@ -386,10 +391,11 @@ def validateInputArgs(args):
         return False
 
     #check that input file is a valid text file
-    if os.path.splitext(args.input_file)[1] not in ['.txt']:
-        print('Error: the input file must be a valid text file')
-        print("False\n")
-        return False
+    for inputfile in inputFileList:
+        if os.path.splitext(inputfile)[1] not in ['.txt']:
+            print('Error: the input file must be a valid text file')
+            print("False\n")
+            return False
     
     #check that finite file is a valid text file
     if args.finite_file and os.path.splitext(args.finite_file)[1] not in ['.txt']:
