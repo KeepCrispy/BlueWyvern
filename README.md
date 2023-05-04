@@ -22,7 +22,7 @@ python3 BlueWyvern.py --input_file testCode.txt,testCode2.txt,... --output_rule 
 
 ----------------------------------------------------------------------------
 
-This POC tool can be customized for performing security audits on a project or in a library. 
+This POC tool can be customized for performing security audits on a project or in a library. Is probably better for filtering things not malware specific but could still pose as a security issue.
 
 It's important to keep it light weight so you can deploy this easily with minimal setup to run in your pipeline or deployment environment.
 
