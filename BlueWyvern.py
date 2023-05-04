@@ -216,7 +216,7 @@ def SaveProfileRules(regex_rule, rule_file_name):
 
 #Regex rule scanning
 
-def ProfileRulesFromFile(targetFile):
+def ProfileRulesFromSingleFile(targetFile):
 
     #open the script you want to profile for 
     target_File = open(targetFile, "r")
@@ -250,7 +250,7 @@ def ProfileRulesFromFiles(inputFileList, rule_file_name):
     #iterate through files list provided by user input
     for inputFile in inputFileList:
         #generate rules
-        rule = ProfileRulesFromFile(inputFile)
+        rule = ProfileRulesFromSingleFile(inputFile)
         #add to list of rules
         parsed_rules.append(rule)
     
@@ -435,7 +435,7 @@ def main():
         
     #check that the input file and output rule is present
     if args.input_file and args.output_rule:
-        ProfileRulesFromFile(inputFileList, args.output_rule)
+        ProfileRulesFromFiles(inputFileList, args.output_rule)
         return
     	
     #iterate through the list of files
