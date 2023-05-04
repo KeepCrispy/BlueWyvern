@@ -12,9 +12,12 @@ This is part of a write-up I'v done for a deep dive into modern AMSI evasion tec
 Usage
 
 for scanning:
+
 python3 BlueWyvern.py --input_file testCode.txt,testCode2.txt,... --finite_file testrule.txt
 
-for profiling a script:
+
+for profiling:
+
 python3 BlueWyvern.py --input_file testCode.txt,testCode2.txt,... --output_rule testrule.txt
 
 ----------------------------------------------------------------------------
