@@ -561,7 +561,8 @@ def main():
     #validate user arguements before going any further
     if validateInputArgs(args) == False:
         return
-        
+    
+    #activate monitoring if monitoring paths are provided
     if args.mon_dir:
         MonitorFileIntegrity(args)
         return
