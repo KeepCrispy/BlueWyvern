@@ -1,6 +1,6 @@
 # BlueWyvern
 
-This POC tool is designed to detect a wide range of obfuscated code, including potentially malicious code, and to profile common patterns across multiple files. 
+This POC file integretiy monitoring tool is designed to detect a wide range of obfuscated code, including potentially malicious code, and to profile common patterns across multiple files. 
 
 credit goes to Panagiotis Chartas for his [PowerShell-Obfuscation-Bible Research](https://github.com/t3l3machus/PowerShell-Obfuscation-Bible)
 
@@ -18,10 +18,13 @@ for scanning:
 
 python3 BlueWyvern.py --input_file testCode.txt,testCode2.txt,... --finite_file testrule.txt
 
-
 for profiling:
 
 python3 BlueWyvern.py --input_file testCode.txt,testCode2.txt,... --output_rule testrule.txt
+
+for monitoring:
+
+python3 BlueWyvern.py --mon_dir /folder/path/you want to/monitor/ [--finite_file testrule.txt]
 
 ----------------------------------------------------------------------------
 
