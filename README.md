@@ -1,9 +1,12 @@
 # BlueWyvern
-This is a security solution POC for detecting obfuscated code for code security audits with a profiling feature to look for common patterns in multiple files.
+
+This POC tool is designed to detect a wide range of obfuscated code, including potentially malicious code, and to profile common patterns across multiple files. 
 
 credit goes to Panagiotis Chartas for his [PowerShell-Obfuscation-Bible Research](https://github.com/t3l3machus/PowerShell-Obfuscation-Bible)
 
-This tool uses Regex to detect a variety of obfuscated code, including suspects of malicious code. It also includes regular expressions to detect malicious URLs, IP addresses, domains, file attachments, executables, and registry entries, which requires some in depth knowledge of Yara to create custom rules for. It is also able to find common code execution patterns if given multiple sources to profile regex rules. Additionally, the finite machine regex-based string search can detect multiple requirements in a single line sweep.
+The tool uses regex to detect a variety of obfuscated code, including suspects of malicious code, malicious URLs, IP addresses, domains, file attachments, executables, and registry entries. It also has the capability of finding common code execution patterns when given multiple sources to profile regex rules, and the finite machine regex-based string search can detect multiple requirements in a single line sweep.
+
+This POC tool can be customized to perform security audits on projects and libraries. It is important to keep the tool lightweight, so it can easily be deployed with minimal setup in a pipeline or deployment environment. Customization is highly recommended before use, such as adding logging and notifications, and it should be used in tandem with a file integrity monitor to add an extra layer of visibility. 
 
 This is part of a write-up I'v done for a deep dive into modern AMSI evasion techniques and how you can protect yourself and your development pipeline/environments. [My Powershell AMSI write-up](https://keepcrispy.github.io/AMSIProj)
 
@@ -22,10 +25,3 @@ python3 BlueWyvern.py --input_file testCode.txt,testCode2.txt,... --output_rule 
 
 ----------------------------------------------------------------------------
 
-This POC tool can be customized for performing security audits on a project or in a library. Is probably better for filtering things not malware specific but could still pose as a security issue.
-
-It's important to keep it light weight so you can deploy this easily with minimal setup to run in your pipeline or deployment environment.
-
-I highly recommend customizing further before use, such as adding logging and notifications. This is best used in tandem with a file integrity monitor as well to add an extra layer of visibility. Also to add more functionality, you can combine this with libemu. 
-
-Cheers
