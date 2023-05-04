@@ -228,15 +228,8 @@ def builtinGlobalRegexScan(targetFile):
                 regexMatches.append(match.group())
                 break
     
-    match_count = 0
-    for matches in regexMatches:
-    	for item in matches:
-    	   if item != '':
-    	       match_count += 1
-    	       break 
-    
     #confirm and print findings
-    if match_count > 0:
+    if len(regexMatches) > 0:
         return True
     return False
 
@@ -339,7 +332,7 @@ def MonitorFileIntegrity(args):
                     fileHashMap[file] = CalculateMD5Hash(file)
                     
                 #check if file is new or has been touched
-                if CheckIfFileIsNew(file) and file != "bluewyvern_log.txt" and file !="bluewyvern_hashes.txt" and file != "BlueWyvern.py":
+                if CheckIfFileIsNew(file) and file != "bluewyvern_log.txt" and file !="bluewyvern_hashes.txt" and file != "BlueWyvern.py" and not os.path.isdir(file):
             
                     #calculate MD5 hash
                     md5_hash_val = CalculateMD5Hash(file)
