@@ -223,7 +223,7 @@ def builtinGlobalRegexScan(targetFile):
     
     #loop through regex items
     for item in globalRegexList:
-        #loopp through lines
+        #loop through lines
         for line in fileLines:
             #regex search and storing findings
             match = re.search(item, line)
