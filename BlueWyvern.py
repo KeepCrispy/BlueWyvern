@@ -87,6 +87,58 @@ def escapeString(string):
     #return compiled string
     return stringBuilder
 
+#find common regex pattern algorithm
+def FindCommonExecutionPattern(s1, s2): 
+  
+    m = len(s1) 
+    n = len(s2) 
+  
+    # declaring the array for storing the dp values 
+    L = [[None]*(n+1) for i in range(m+1)] 
+  
+    """Following steps build L[m+1][n+1] in bottom up fashion 
+    Note: L[i][j] contains length of LCS of X[0..i-1] 
+    and Y[0..j-1]"""
+    for i in range(m+1): 
+        for j in range(n+1): 
+            if i == 0 or j == 0 : 
+                L[i][j] = 0
+            elif s1[i-1] == s2[j-1]: 
+                L[i][j] = L[i-1][j-1]+1
+            else: 
+                L[i][j] = max(L[i-1][j] , L[i][j-1]) 
+  
+    # L[m][n] contains the length of LCS of X[0..n-1] & Y[0..m-1] 
+    index = L[m][n] 
+  
+    # Create a character array to store the common string 
+    lcs = [""] * (index+1) 
+    lcs[index] = "" 
+  
+    # Start from the right-most-bottom-most corner and 
+    # one by one store characters in lcs[] 
+    i = m 
+    j = n 
+    while i > 0 and j > 0: 
+  
+        # If current character in X[] and Y are same, then 
+        # current character is part of common pattern 
+        if s1[i-1] == s2[j-1]: 
+            lcs[index-1] = s1[i-1] 
+            i-=1
+            j-=1
+            index-=1
+  
+        # If not same, then find the larger of two and 
+        # go in the direction of larger value 
+        elif L[i-1][j] > L[i][j-1]: 
+            i-=1
+        else: 
+            j-=1
+  
+    # Return the common pattern as a string 
+    return "".join(lcs) 
+  
 
 #setup function for appending global regex keywords
 def builtinGlobalRegexScan(targetFile):
@@ -156,9 +208,15 @@ def builtinGlobalRegexScan(targetFile):
         print("No Builtin Regex matches found.")
     return False
 
+#Write regex rules to a file
+def SaveProfileRules(regex_rule, rule_file_name):
+    # write regex rule to file with 
+    rule_file = open(rule_file_name,'w')
+    for rule in regex_rule:  rule_file.write(rule + '\n')
+
 #Regex rule scanning
 
-def ProfileRulesFromFile(targetFile, rule_file_name):
+def ProfileRulesFromFile(targetFile):
 
     #open the script you want to profile for 
     target_File = open(targetFile, "r")
@@ -178,15 +236,51 @@ def ProfileRulesFromFile(targetFile, rule_file_name):
 
     regex_rule = [] # create regex rule for special characters
 
-    #ceate the regex rule with the escaped characters
+    #ceate the regex rule with the detected characters
     for char in special_characters:
         regex_rule.append(char) 
-        
-    # write regex rule to file with 
-    rule_file = open(rule_file_name,'w')
-    for rule in regex_rule:  rule_file.write(rule + '\n')
-    print ("done profiling")
+    
+    return regex_rule
 
+#Perform rule profiling for all files
+def ProfileRulesFromFiles(inputFileList, rule_file_name):
+    #holder for all rules
+    parsed_rules = []
+    
+    #iterate through files list provided by user input
+    for inputFile in inputFileList:
+        #generate rules
+        rule = ProfileRulesFromFile(inputFile)
+        #add to list of rules
+        parsed_rules.append(rule)
+    
+    if len(parsed_rules)==1:
+        SaveProfileRules(parsed_rules[0],rule_file_name)
+    elif len(parsed_rules)==0:
+        #case for text file without any special characters
+        print("no special characters found for profiling")
+    
+    #at this point, the parsed rules array size must be at least 2
+    
+    #sort the list in ascending order of length
+    #we want the shortest first as our base case
+    parsed_rules.sort(key = len)
+    
+    #the set of common rules, start with the shortest pattern
+    common_rules = parsed_rules[0]
+    
+    listLen = len(parsed_rules) #cache array length for faster performance
+    
+    #loop through and compare for common regex patterns
+    for i in range(1,listLen):
+        #compare the common set with the one in the array, re-assign common set with new set
+        #this list should only get shorter
+        common_rules = FindCommonExecutionPattern(common_rules, parsed_rules[i])
+    
+    #store final set of commonrules
+    SaveProfileRules(parsed_rules[0],rule_file_name)
+    
+    print("done profiling")
 
 #Regex Scanning Methods
 
@@ -244,7 +338,7 @@ def ScanGlobalRegex(targetFile, global_regex_rule_file):
 def RunTests(args):
 
     #open input file for testing
-    finite_regex_strings = readTargetFile(args.finite_file)LinearContentScan.py
+    finite_regex_strings = readTargetFile(args.finite_file)
     targetFile = open(args.input_file, "r")
     
     #begin testing
@@ -341,7 +435,7 @@ def main():
         
     #check that the input file and output rule is present
     if args.input_file and args.output_rule:
-        ProfileRulesFromFile(args.input_file, args.output_rule)
+        ProfileRulesFromFile(inputFileList, args.output_rule)
         return
     	
     #iterate through the list of files
