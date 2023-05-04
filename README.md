@@ -9,7 +9,7 @@ This is part of a write-up I'v done for a deep dive into modern AMSI evasion tec
 
 ----------------------------------------------------------------------------
 
-Usage
+Usage 
 
 for scanning:
 python3 BlueWyvern.py --input_file testCode.txt --finite_file testrule.txt

@@ -41,7 +41,9 @@
 import argparse
 import re
 import os
-
+import hashlib
+import time
+import datetime
     
 #Helper/Utilities functions below
 
@@ -86,6 +88,25 @@ def escapeString(string):
         
     #return compiled string
     return stringBuilder
+
+
+#function to calculate the MD5 hash of a file
+def CalculateMD5Hash(file):
+    hash_md5 = hashlib.md5()
+    with open(file, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+
+#function to check if a file is new or has been touched
+def CheckIfFileIsNew(file):
+    #check if file was modified within the last 10 minutes
+    if (time.time() - os.path.getmtime(file)) < 600:
+        return True
+    else:
+        return False
+        
 
 #find common regex pattern algorithm
 def FindCommonExecutionPattern(s1, s2): 
@@ -154,21 +175,25 @@ def builtinGlobalRegexScan(targetFile):
 
 
     #expanding regex to search for more obfuscated code
-    obfuscatedRegexList = [r'\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\]',
+    obfuscatedRegexList = [r'[^A-Za-z0-9_]{2,}|\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\]|\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\](.)|[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*|[A-Za-z0-9]*[0-9A-F]{2,}[A-Za-z0-9]*|[A-Za-z0-9]{2,}\]\[\d{1,}|\[\d{1,}\]\[\d{1,}']
+
+    obfuscatedRegexList += [r'\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\]',
                     r'\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\](.)',
                     r'[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*',
                     r'[A-Za-z0-9]*[0-9A-F]{2,}[A-Za-z0-9]*',
                     r'[^A-Za-z0-9]{2,}',
                     r'[A-Za-z0-9]{2,}\]\[\d{1,}',
                     r'\[\d{1,}\]\[\d{1,}']
-
-
+                    
+    obfuscatedRegexList.append(r'[^A-Za-z0-9]{2,}|\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\]|\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\](.)|[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*|[A-Za-z0-9]*[0-9A-F]{2,}[A-Za-z0-9]*|[A-Za-z0-9]{2,}\]\[\d{1,}|\[\d{1,}\]\[\d{1,}')
+                    
     #adding regex to detect malicious URLs
-    suspiciousRegexList = [r'((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)']
-    suspiciousRegexList.append(r'((http?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)')
+    suspiciousRegexList = []
+    suspiciousRegexList += [r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})']
+    suspiciousRegexList += [r'(http?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})']
 
     #adding regex to detect malicious IP addresses
-    suspiciousRegexList.append(r'(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])')
+    suspiciousRegexList += [(r'^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$')]
 
     #adding regex to detect malicious domains
     suspiciousRegexList.append(r'(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]')
@@ -182,9 +207,9 @@ def builtinGlobalRegexScan(targetFile):
     #adding regex to detect malicious registry entries
     suspiciousRegexList.append(r'[\w\d]{1,}=.*\\[\w\d]{1,}\\[\w\d]{1,}')
     
+    
     #load user regex rules file for global scanning
     globalRegexList = []
-    
     
     #importing keywords and obfuscation definitions
     globalRegexList += keywords
@@ -194,18 +219,25 @@ def builtinGlobalRegexScan(targetFile):
     
     #perform regex scanning
     regexMatches = []
-    regexMatches = re.findall('|'.join(globalRegexList), targetFile.read())
+    fileLines = targetFile.readlines()
+    
+    for item in globalRegexList:
+        for line in fileLines:
+            match = re.search(item, line)
+            if match:
+                regexMatches.append(match.group())
+                break
+    
+    match_count = 0
+    for matches in regexMatches:
+    	for item in matches:
+    	   if item != '':
+    	       match_count += 1
+    	       break 
     
     #confirm and print findings
-    if len(regexMatches) > 0:
-        print("Builtin Regex Matches found:")
-        
-        #print the results so we can use it later for reference
-        for match in regexMatches:
-            print(match)
+    if match_count > 0:
         return True
-    else:
-        print("No Builtin Regex matches found.")
     return False
 
 #Write regex rules to a file
@@ -282,6 +314,86 @@ def ProfileRulesFromFiles(inputFileList, rule_file_name):
     
     print("done profiling")
 
+
+#File Integrity Monitor function
+def MonitorFileIntegrity(args):
+
+    #split directory paths
+    dir_paths = args.mon_dir.split(",")
+    
+    #file map
+    fileHashMap = {}
+    scanMap = {}
+    
+    while True:
+        #loop through directory paths
+        for dir_path in dir_paths:
+    
+            #get list of files in each directory
+            files = os.listdir(dir_path)
+        
+            #loop through each file in directory
+            for file in files:
+            
+                if file not in fileHashMap and not os.path.isdir(file):
+                    fileHashMap[file] = CalculateMD5Hash(file)
+                    
+                #check if file is new or has been touched
+                if CheckIfFileIsNew(file) and file != "bluewyvern_log.txt" and file !="bluewyvern_hashes.txt" and file != "BlueWyvern.py":
+            
+                    #calculate MD5 hash
+                    md5_hash_val = CalculateMD5Hash(file)
+                    
+                    #get timestamp
+                    timestamp = datetime.datetime.now()
+                
+                    #log MD5 hash value in a file 
+                    with open("bluewyvern_hashes.txt", "a") as f:
+                        f.write(file + ": " + timestamp.strftime("%m-%d-%Y %H:%M") + ": " + "old_hash:"+fileHashMap[file] + "changed_hash: " + md5_hash_val + "\n")
+
+                    
+                    #scan for regex rules 
+                    targetFile = targetFile = open(file, "r")
+                    result = False;
+                
+                    #scan with finite state machine if we are given finite rules 
+                    if args.finite_file != None:
+                        result = ScanWithfiniteMachine(finite_regex_strings, targetFile)
+    
+                    #scan for global regex if we are given global rules
+                    if args.regex_file != None:
+                        result = ScanGlobalRegex(targetFile, args.regex_file) or result
+         
+                    #scan for built in rules
+                    result = builtinGlobalRegexScan(targetFile) or result
+
+                    if result:
+                        print("found a suspicious file: " + file + ": " + timestamp.strftime("%m-%d-%Y %H:%M"))
+                        loggedFlag = False
+                            
+                        #open the script you want to profile for
+                        if os.path.exists("bluewyvern_log.txt"):
+                            readLog = open("bluewyvern_log.txt", "r")
+                            logLines = readLog.readlines()
+                            
+                            for line in logLines:
+                                match = re.search(file, line)
+                                if match:
+                                    loggedFlag = True
+                                    break
+                                    
+                        if loggedFlag == False:
+                            with open("bluewyvern_log.txt", "a") as f:
+                                f.write(file + ": " + timestamp.strftime("%m-%d-%Y %H:%M") + ": "  + md5_hash_val + "\n")
+                    
+                    #update hash
+                    fileHashMap[file] = md5_hash_val
+                    
+                    
+            #add a period of rest before scanning the next file directory
+            time.sleep(1)
+
+
 #Regex Scanning Methods
 
 def SearchFiniteRegexStrings(finite_regex_strings, targetFile):
@@ -322,14 +434,12 @@ def ScanGlobalRegex(targetFile, global_regex_rule_file):
     
     #confirm and print findings
     if len(regexMatches) > 0:
-        print("Global Regex Matches found:")
+        #print("Global Regex Matches found:")
         
         #print the results so we can use it later for reference
-        for match in regexMatches:
-            print(match)
+        #for match in regexMatches:
+        #    print(match)
         return True
-    else:
-        print("No Global Regex matches found.")
     return False
     
 
@@ -360,23 +470,35 @@ def RunTests(args):
 
 #used by the main() entry method to validate user inputs
 def validateInputArgs(args):
-
     
+    if args.mon_dir:
+        #split directory paths
+        dir_paths = args.mon_dir.split(",")
+        for dir_path in dir_paths:
+           #check if folder exists
+           if not os.path.isdir(dir_path):
+               print('Error: monitor path does not exist - ' + dir_path)
+               return False
 
     #check that the input file, and atleast one regex or rule file is present
     if args.input_file is None or (args.output_rule is None and args.finite_file is None and args.regex_file is None):
-        print("Error: both Input_file and at least 1 Regex file (finite_file or regex_file) must be provided")
-        print("False\n")
-        return False
-        #check that input files exist
+        
+        if args.mon_dir is None:
+            print("Error: both Input_file and at least 1 Regex file (finite_file or regex_file) must be provided")
+            print("False\n")
+            
+            #having monitoring directory path args overrides this false flag check
+            return False
         
     #split the input files argument into a list
-    inputFileList = args.input_file.split(",")
-    for inputfile in inputFileList:
-        if not os.path.exists(inputfile):
-            print('Error: the input file [' + inputfile + '] does not exist')
-            print("False\n")
-            return False
+    if args.input_file:
+        inputFileList = args.input_file.split(",")
+    
+        for inputfile in inputFileList:
+            if not os.path.exists(inputfile):
+                print('Error: the input file [' + inputfile + '] does not exist')
+                print("False\n")
+                return False
     
     #check that finite file exists
     if args.finite_file and not os.path.exists(args.finite_file):
@@ -391,11 +513,12 @@ def validateInputArgs(args):
         return False
 
     #check that input file is a valid text file
-    for inputfile in inputFileList:
-        if os.path.splitext(inputfile)[1] not in ['.txt']:
-            print('Error: the input file must be a valid text file')
-            print("False\n")
-            return False
+    if args.input_file:
+        for inputfile in inputFileList:
+            if os.path.splitext(inputfile)[1] not in ['.txt']:
+                print('Error: the input file must be a valid text file')
+                print("False\n")
+                return False
     
     #check that finite file is a valid text file
     if args.finite_file and os.path.splitext(args.finite_file)[1] not in ['.txt']:
@@ -429,14 +552,21 @@ def main():
     parser.add_argument("--regex_file", help="The file containing the regex strings to use for the scan")
     parser.add_argument("--finite_file", help="The file containing  ordered regex string to use for the scan")
     parser.add_argument("--output_rule", help="The output rule file from profiling the input file")
+    parser.add_argument("--mon_dir", help="The output rule file from profiling the input file")
     
     args = parser.parse_args()
     
+    inputFileList = []
     #split the input files argument into a list
-    inputFileList = args.input_file.split(",")
+    if args.input_file:
+    	inputFileList = args.input_file.split(",")
     
     #validate user arguements before going any further
     if validateInputArgs(args) == False:
+        return
+        
+    if args.mon_dir:
+        MonitorFileIntegrity(args)
         return
         
     #check that the input file and output rule is present

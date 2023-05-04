@@ -12,6 +12,11 @@
 
 import re
 
+test.exe
+Get-WMIObject
+http://test.ca
+1.1.12.12
+
 def readFile(fileName):
     strings = []
     with open(fileName, 'r') as file:
