@@ -8,7 +8,7 @@ The tool uses regex to detect code execution patterns, including suspects of mal
 
 This POC tool can be customized to perform security audits on projects and libraries. It is important to keep the tool lightweight, so it can easily be deployed with minimal setup in a pipeline or deployment environment. Customization is highly recommended before use, such as adding logging and notifications, and it should be used in tandem with a file integrity monitor to add an extra layer of visibility. 
 
-This is part of a write-up I'v done for a deep dive into modern AMSI evasion techniques and how you can protect yourself and your development pipeline/environments. [My Powershell AMSI write-up](https://keepcrispy.github.io/AMSIProj)
+This is part of a write-up I wrote on modern AMSI evasion techniques and how you can protect yourself and your development pipeline/environments. [My Powershell AMSI write-up](https://keepcrispy.github.io/AMSIProj)
 
 ----------------------------------------------------------------------------
 
