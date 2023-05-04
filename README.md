@@ -3,7 +3,7 @@ This is a security solution POC for detecting obfuscated code for code security 
 
 credit goes to Panagiotis Chartas for his [PowerShell-Obfuscation-Bible Research](https://github.com/t3l3machus/PowerShell-Obfuscation-Bible)
 
-This tool uses Regex to detect a variety of obfuscated code, including suspects of malicious code. It also includes regular expressions to detect malicious URLs, IP addresses, domains, file attachments, executables, and registry entries, which requires some in depth knowledge of Yara to create custom rules for. Additionally, the finite machine regex-based string search can detect multiple requirements in a single line sweep.
+This tool uses Regex to detect a variety of obfuscated code, including suspects of malicious code. It also includes regular expressions to detect malicious URLs, IP addresses, domains, file attachments, executables, and registry entries, which requires some in depth knowledge of Yara to create custom rules for. It is also able to find common code execution patterns if given multiple sources to profile regex rules. Additionally, the finite machine regex-based string search can detect multiple requirements in a single line sweep.
 
 This is part of a write-up I'v done for a deep dive into modern AMSI evasion techniques and how you can protect yourself and your development pipeline/environments. [My Powershell AMSI write-up](https://keepcrispy.github.io/AMSIProj)
 
@@ -12,10 +12,10 @@ This is part of a write-up I'v done for a deep dive into modern AMSI evasion tec
 Usage
 
 for scanning:
-python3 BlueWyvern.py --input_file testCode.txt --finite_file testrule.txt
+python3 BlueWyvern.py --input_file testCode.txt,testCode2.txt,... --finite_file testrule.txt
 
 for profiling a script:
-python3 BlueWyvern.py --input_file testCode.txt --output_rule testrule.txt
+python3 BlueWyvern.py --input_file testCode.txt,testCode2.txt,... --output_rule testrule.txt
 
 ----------------------------------------------------------------------------
 
