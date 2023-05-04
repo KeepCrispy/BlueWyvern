@@ -6,13 +6,13 @@ credit goes to Panagiotis Chartas for his [PowerShell-Obfuscation-Bible Research
 
 This tool uses regex to detect code execution patterns, including suspects of malicious code, malicious URLs, IP addresses, domains, file attachments, and hidden executable calls. It also has the capability of finding common code execution patterns when given multiple sources to profile regex rules, and the finite machine regex-based string search can detect multiple requirements in a single line sweep.
 
-This tool has 3 usage modes: Active Scanning (specific files with specific rules), Profiling (pattern finding in files), and Monitoring (File Integrity Monitoring mode)
-
 This POC tool can be customized to perform security audits on projects and libraries. It is important to keep the tool lightweight, so it can easily be deployed with minimal setup in a pipeline or deployment environment. Customization is highly recommended before use, such as adding logging and notifications, and it should be used in tandem with a file integrity monitor to add an extra layer of visibility. 
 
 This is part of a write-up I wrote on modern AMSI evasion techniques and how you can protect yourself and your development pipeline/environments. [My Powershell AMSI write-up](https://keepcrispy.github.io/AMSIProj)
 
 ----------------------------------------------------------------------------
+
+This tool has 3 usage modes: Active Scanning (specific files with specific rules), Profiling (pattern finding in files), and Monitoring (File Integrity Monitoring mode)
 
 Usage 
 
