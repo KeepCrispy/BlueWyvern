@@ -549,7 +549,7 @@ def main():
     parser.add_argument("--regex_file", help="The file containing the regex strings to use for the scan")
     parser.add_argument("--finite_file", help="The file containing  ordered regex string to use for the scan")
     parser.add_argument("--output_rule", help="The output rule file from profiling the input file")
-    parser.add_argument("--mon_dir", help="The output rule file from profiling the input file")
+    parser.add_argument("--mon_dir", help="The directory paths you want to monitor, seperated by commas")
     
     args = parser.parse_args()
     
