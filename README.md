@@ -1,5 +1,5 @@
 # BlueWyvern
-This is a security solution POC for detecting obfuscated code for code security audits.
+This is a security solution POC for detecting obfuscated code for code security audits with a profiling feature to look for common patterns in multiple files.
 
 credit goes to Panagiotis Chartas for his [PowerShell-Obfuscation-Bible Research](https://github.com/t3l3machus/PowerShell-Obfuscation-Bible)
 
