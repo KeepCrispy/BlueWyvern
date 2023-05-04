@@ -221,14 +221,17 @@ def builtinGlobalRegexScan(targetFile):
     regexMatches = []
     fileLines = targetFile.readlines()
     
+    #loop through regex items
     for item in globalRegexList:
+        #loopp through lines
         for line in fileLines:
+            #regex search and storing findings
             match = re.search(item, line)
             if match:
                 regexMatches.append(match.group())
                 break
     
-    #confirm and print findings
+    #return true if regex items are found
     if len(regexMatches) > 0:
         return True
     return False
