@@ -4,11 +4,13 @@ This POC file integretiy monitoring tool is designed to mainly detect code execu
 
 credit goes to Panagiotis Chartas for his [PowerShell-Obfuscation-Bible Research](https://github.com/t3l3machus/PowerShell-Obfuscation-Bible)
 
-This tool uses regex to detect code execution patterns, including suspects of malicious code, malicious URLs, IP addresses, domains, file attachments, and hidden executable calls. It also has the capability of finding common code execution patterns when given multiple sources to profile regex rules, and the finite machine regex-based string search can detect multiple requirements in a single line sweep. 
+This POC tool uses regex to detect code execution patterns, including suspects of malicious code, malicious URLs, IP addresses, domains, file attachments, and hidden executable calls. It also has the capability of finding common code execution patterns when given multiple sources to profile regex rules, and the finite machine regex-based string search can detect multiple requirements in a single line sweep. 
 
-This POC tool can be customized to perform security audits on projects and libraries. Like flagging suspects of vulnerable code that may lead to a vulnerability in the application. It is important to keep the tool and rules lightweight, so it can easily be deployed with minimal setup in a pipeline or testing/deployment environment. Customization is highly recommended before use, such as adding logging and notifications.
+This POC tool can be customized to perform some basic security audits on projects and libraries. Like flagging suspects of vulnerable code that may lead to a vulnerability in the application. It is important to keep the tool and rules lightweight, so it can easily be deployed with minimal setup in a pipeline or testing/deployment environment. Customization is highly recommended before use, such as adding logging and notifications.
 
 This is part of a write-up I wrote on modern AMSI evasion techniques and how you can protect yourself and your development pipeline/environments. [My Powershell AMSI write-up](https://keepcrispy.github.io/AMSIProj)
+
+Utimately AMSI systems should be patched to catch these types of issues. 
 
 ----------------------------------------------------------------------------
 
