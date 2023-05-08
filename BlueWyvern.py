@@ -45,6 +45,7 @@ import os
 import hashlib
 import time
 import datetime
+import base64
     
 #Helper/Utilities functions below
 
@@ -174,19 +175,6 @@ def builtinGlobalRegexScan(targetFile):
             'Invoke-WebRequest', 'Get-WinEvent', 'Write-EventLog', 'Invoke-Item',
             'Invoke-History', 'Get-NetFirewallRule', 'Get-NetAdapter']
 
-
-    #expanding regex to search for more obfuscated code
-    obfuscatedRegexList = [r'[^A-Za-z0-9_]{2,}|\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\]|\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\](.)|[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*|[A-Za-z0-9]*[0-9A-F]{2,}[A-Za-z0-9]*|[A-Za-z0-9]{2,}\]\[\d{1,}|\[\d{1,}\]\[\d{1,}']
-
-    obfuscatedRegexList += [r'\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\]',
-                    r'\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\](.)',
-                    r'[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*',
-                    r'[A-Za-z0-9]*[0-9A-F]{2,}[A-Za-z0-9]*',
-                    r'[^A-Za-z0-9]{2,}',
-                    r'[A-Za-z0-9]{2,}\]\[\d{1,}',
-                    r'\[\d{1,}\]\[\d{1,}']
-                    
-    obfuscatedRegexList.append(r'[^A-Za-z0-9]{2,}|\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\]|\$[\w\d]{1,}=\[[A-Za-z0-9]{2,}\](.)|[A-Za-z0-9]*(.)\\1{2,}[A-Za-z0-9]*|[A-Za-z0-9]*[0-9A-F]{2,}[A-Za-z0-9]*|[A-Za-z0-9]{2,}\]\[\d{1,}|\[\d{1,}\]\[\d{1,}')
                     
     #adding regex to detect malicious URLs
     suspiciousRegexList = []
@@ -196,17 +184,11 @@ def builtinGlobalRegexScan(targetFile):
     #adding regex to detect malicious IP addresses
     suspiciousRegexList += [(r'^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$')]
 
-    #adding regex to detect malicious domains
-    suspiciousRegexList.append(r'(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]')
-
     #adding regex to detect malicious file attachments
     suspiciousRegexList.append(r'[a-zA-Z0-9][a-zA-Z0-9._-]*\.(?:zip|exe|msi|rar)')
 
     #adding regex to detect malicious executables
     suspiciousRegexList.append(r'[a-zA-Z0-9][a-zA-Z0-9._-]*\.exe')
-
-    #adding regex to detect malicious registry entries
-    suspiciousRegexList.append(r'[\w\d]{1,}=.*\\[\w\d]{1,}\\[\w\d]{1,}')
     
     
     #load user regex rules file for global scanning
@@ -214,7 +196,6 @@ def builtinGlobalRegexScan(targetFile):
     
     #importing keywords and obfuscation definitions
     globalRegexList += keywords
-    globalRegexList += obfuscatedRegexList
     globalRegexList += suspiciousRegexList
     
     
@@ -231,9 +212,10 @@ def builtinGlobalRegexScan(targetFile):
             if match:
                 regexMatches.append(match.group())
                 break
-    
+
     #return true if regex items are found
     if len(regexMatches) > 0:
+        print(regexMatches)
         return True
     return False
 
@@ -356,13 +338,26 @@ def MonitorFileIntegrity(args):
                     #scan with finite state machine if we are given finite rules 
                     if args.finite_file != None:
                         result = ScanWithfiniteMachine(finite_regex_strings, targetFile)
-    
+                    
+                    targetFile.seek(0) #reset finite state search
+                    
                     #scan for global regex if we are given global rules
                     if args.regex_file != None:
                         result = ScanGlobalRegex(targetFile, args.regex_file) or result
          
+                    targetFile.seek(0) #reeset global regex search
+                    
+                    if result: print("found positives before builtin")
+                    
                     #scan for built in rules
                     result = builtinGlobalRegexScan(targetFile) or result
+                    
+                    targetFile.seek(0) #reset builtin search
+                    
+                    if result: print("found positives before 64")
+                    
+                    #scan for base64 tokens
+                    result = ScanBase64Lines(targetFile) or result
 
                     if result:
                         print("found a suspicious file: " + file + ": " + timestamp.strftime("%m-%d-%Y %H:%M"))
@@ -432,16 +427,52 @@ def ScanGlobalRegex(targetFile, global_regex_rule_file):
     
     #confirm and print findings
     if len(regexMatches) > 0:
-        #print("Global Regex Matches found:")
-        
-        #print the results so we can use it later for reference
-        #for match in regexMatches:
-        #    print(match)
         return True
     return False
-    
 
+#scan to see if there's any base 64 tokens
+def ScanBase64Tokens(words_in_string):
+
+    #iterate through words in list
+    for token in words_in_string:
+        try:
+            #remove quotes attached from regex match and sentence split
+            token = token.replace("\"","")
+            
+            #try to perform a base64 decode
+            base64.b64decode(token)
+            
+            #decode was successuful so base64 was detected
+            #we only need to detect this once to raise an alarm
+            return True
+        except:
+            #decode failed, move on to next token
+            pass
     
+    #if all token failed base64 decode, no base64 token was detected in string
+    return False
+
+#Scan for Base64 encrypted strings 
+#we just want to detect base64 encryption in a code file, nothing too fancy here
+def ScanBase64Lines(targetFile):
+
+    #get lines
+    fileLines = targetFile.readlines()
+    
+    #scanning each line
+    for line in fileLines:
+            #check if there's a string on the rightside (single and double quotes)
+            matchDoubleQuotes = re.search(r"\"([\S\s\"]+)\"", line)
+            matchSingleQuotes = re.search(r"\s*=\s*\'([\S\s]+)\'", line)
+
+            #if quotes match, use Scanbase64token method to check string for base64 encoded items
+            if (matchDoubleQuotes and matchDoubleQuotes.group(0) and ScanBase64Tokens(matchDoubleQuotes.group(0).split())) or (matchSingleQuotes and matchSingleQuotes.group(0) and ScanBase64Tokens(matchSingleQuotes.group(0).split())):
+                #found a base64 string in file
+                print("found a base 64 string in file")
+                return True
+
+    return False
+
 #perform regex tests, for global rules, and finite machine rules if the rule file is present
 def RunTests(args):
 
