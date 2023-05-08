@@ -10,7 +10,7 @@ This POC tool can be customized to perform some basic security audits on project
 
 This is part of a write-up I wrote on modern AMSI evasion techniques and how you can protect yourself and your development pipeline/environments. [My Powershell AMSI write-up](https://keepcrispy.github.io/AMSIProj)
 
-Utimately AMSI systems should be patched to catch these types of issues. 
+Utimately AMSI systems should be patched to catch these types of issues.
 
 ----------------------------------------------------------------------------
 
