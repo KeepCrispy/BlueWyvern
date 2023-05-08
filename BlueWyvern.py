@@ -371,12 +371,12 @@ def MonitorFileIntegrity(args):
                                     loggedFlag = True
                                     break
                         
-                        #only log this if this is a new finding
-                        if loggedFlag == False:
+                        #only log this if this is a new finding, or if the file hash has changed
+                        if fileHashMap[file] != md5_hash_val or loggedFlag == False:
                             with open("bluewyvern_log.txt", "a") as f:
                                 f.write(file + ": " + timestamp.strftime("%m-%d-%Y %H:%M") + ": "  + md5_hash_val + "\n")
                     
-                    #update hash
+                    #update hash map withe latest file hash
                     fileHashMap[file] = md5_hash_val
                     
                     
