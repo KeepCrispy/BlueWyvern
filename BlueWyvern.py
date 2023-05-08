@@ -347,14 +347,11 @@ def MonitorFileIntegrity(args):
          
                     targetFile.seek(0) #reeset global regex search
                     
-                    if result: print("found positives before builtin")
-                    
                     #scan for built in rules
                     result = builtinGlobalRegexScan(targetFile) or result
                     
                     targetFile.seek(0) #reset builtin search
                     
-                    if result: print("found positives before 64")
                     
                     #scan for base64 tokens
                     result = ScanBase64Lines(targetFile) or result
@@ -490,8 +487,12 @@ def RunTests(args):
     #scan for global regex if we are given global rules
     if args.regex_file != None:
         result = result or ScanGlobalRegex(targetFile, args.regex_file)
-        
+    
+    #scan for built in regex items 
     result = builtinGlobalRegexScan(targetFile) or result
+    
+    #scan for base64 tokens
+    result = ScanBase64Lines(targetFile) or result
    
     return (result)
     
