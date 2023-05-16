@@ -2,7 +2,7 @@
 
 This POC file integretiy monitoring tool is designed to mainly detect code execution patterns in obfuscated code, catching potentially malicious code, and to profile common patterns across multiple script/files. 
 
-    credit goes to Panagiotis Chartas for his [PowerShell-Obfuscation-Bible Research](https://github.com/t3l3machus/PowerShell-Obfuscation-Bible)
+credit goes to Panagiotis Chartas for his [PowerShell-Obfuscation-Bible Research](https://github.com/t3l3machus/PowerShell-Obfuscation-Bible)
 
 BlueWyvern uses regex to detect code execution patterns, including suspects of malicious code, malicious URLs, IP addresses, domains, file attachments, and hidden executable calls. It also has the capability of finding common code execution patterns when given multiple sources to profile regex rules, and the finite machine regex-based string search can detect multiple requirements in a single line sweep. 
 
@@ -20,15 +20,15 @@ Usage
 
 for scanning:
 
-python3 BlueWyvern.py --input_file testCode.txt,testCode2.txt,... --finite_file testrule.txt
+    python3 BlueWyvern.py --input_file testCode.txt,testCode2.txt,... --finite_file testrule.txt
 
 for profiling:
 
-python3 BlueWyvern.py --input_file testCode.txt,testCode2.txt,... --output_rule testrule.txt
+    python3 BlueWyvern.py --input_file testCode.txt,testCode2.txt,... --output_rule testrule.txt
 
 for monitoring:
 
-python3 BlueWyvern.py --mon_dir /folder/path/you want to/monitor/ [--finite_file testrule.txt]
+    python3 BlueWyvern.py --mon_dir /folder/path/you want to/monitor/ [--finite_file testrule.txt]
 
 ----------------------------------------------------------------------------
 
