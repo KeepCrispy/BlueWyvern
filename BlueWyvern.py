@@ -589,7 +589,7 @@ def main():
     inputFileList = []
     #split the input files argument into a list
     if args.input_file:
-    	inputFileList = args.input_file.split(",")
+        inputFileList = args.input_file.split(",")
     
     #validate user arguements before going any further
     if validateInputArgs(args) == False:
