@@ -458,9 +458,9 @@ def ScanBase64Lines(targetFile):
     
     #scanning each line
     for line in fileLines:
-            #check if there's a string on the rightside (single and double quotes)
-            matchDoubleQuotes = re.search(r"\"([\S\s\"]+)\"", line)
-            matchSingleQuotes = re.search(r"\s*=\s*\'([\S\s]+)\'", line)
+            #check if there's a string token (single and double quotes)
+            matchDoubleQuotes = re.search(r"\"([\S\s]+)\"", line)
+            matchSingleQuotes = re.search(r"\'([\S\s]+)\'", line)
 
             #if quotes match, use Scanbase64token method to check string for base64 encoded items
             if (matchDoubleQuotes and matchDoubleQuotes.group(0) and ScanBase64Tokens(matchDoubleQuotes.group(0).split())) or (matchSingleQuotes and matchSingleQuotes.group(0) and ScanBase64Tokens(matchSingleQuotes.group(0).split())):
