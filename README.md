@@ -2,7 +2,7 @@
 
 This file integretiy monitoring tool is designed to mainly detect code execution patterns in obfuscated code, catching potentially malicious code, and to profile common patterns across multiple script/files. 
 
-credit goes to Panagiotis Chartas for his [PowerShell-Obfuscation-Bible Research](https://github.com/t3l3machus/PowerShell-Obfuscation-Bible)
+credit goes to Panagiotis Chartas for his [PowerShell-Obfuscation-Bible Research](https://github.com/t3l3machus/PowerShell-Obfuscation-Bible) for identifying and researching the vulnerability
 
 BlueWyvern uses regex to detect code execution patterns, including suspects of malicious code, malicious URLs, IP addresses, domains, file attachments, and hidden executable calls. It also has the capability of finding common code execution patterns when given multiple sources to profile regex rules, and the finite machine regex-based string search can detect multiple requirements in a single line sweep. 
 
